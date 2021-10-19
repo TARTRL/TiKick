@@ -11,7 +11,7 @@
 Learning-based agent for Google Research Football
 
 Code accompanying the paper 
-"TiKick: Toward Playing Multi-agent Football Full Games from Single-agent Demonstrations". [[arxiv](https://arxiv.org/abs/2110.04507)][[videos](https://sites.google.com/view/tikick)]
+"TiKick: Towards Playing Multi-agent Football Full Games from Single-agent Demonstrations". [[arxiv](https://arxiv.org/abs/2110.04507)][[videos](https://sites.google.com/view/tikick)]
 
 ### 2.Installation
 ```
