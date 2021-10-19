@@ -24,7 +24,7 @@ pip install -e .
 (a) First, you should download the trained model from Baidu Yun or Google Drive:
 
 * pre-trained models can be found at:
-    * Baidu Yun: https://pan.baidu.com/s/11bKsKxs_spXzlpRGCUNlOA  Password：vz3a
+    * Baidu Yun:   Password：vz3a
     * Google Drive: [Click to download](https://drive.google.com/drive/folders/1pUW_7db9Of9zCDZZWoImVgg0_lX5xCt1?usp=sharing)
 
 (b) Then, you should put the `actor.pt` under `./models/academy_3_vs_1_with_keeper/`.
@@ -62,7 +62,7 @@ Please cite our paper if you use our codes or our weights in your own work:
 
 ```
 @misc{huang2021tikick,
-    title={TiKick: Toward Playing Multi-agent Football Full Games from Single-agent Demonstrations},
+    title={TiKick: Towards Playing Multi-agent Football Full Games from Single-agent Demonstrations},
     author={Shiyu Huang and Wenze Chen and Longfei Zhang and Ziyang Li and Fengming Zhu and Deheng Ye and Ting Chen and Jun Zhu},
     year={2021},
     eprint={2110.04507},
