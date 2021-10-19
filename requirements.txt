@@ -1,0 +1,12 @@
+numpy
+cffi
+setproctitle
+icecream
+tensorboardX
+gym
+pysc2
+torch
+gfootball 
+tabulate 
+lz4 
+kaggle_environments
