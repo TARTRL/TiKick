@@ -27,7 +27,7 @@ pip install -e .
     * Baidu Yun: [Click to download](https://pan.baidu.com/s/11bKsKxs_spXzlpRGCUNlOA)  Password：vz3a
     * Google Drive: [Click to download](https://drive.google.com/drive/folders/1pUW_7db9Of9zCDZZWoImVgg0_lX5xCt1?usp=sharing)
 
-(b) Then, you should put the `actor.pt` under `./models/academy_3_vs_1_with_keeper/`.
+(b) Then, you should put the `actor.pt` under `./models/{scenario_name}/`.
 
 (c) Finally, you can go to the `./scripts/football` folder and execute the evaluation script as below:
 
@@ -36,7 +36,7 @@ cd scripts/football
 ./evaluate.sh
 ```
 
-Then the replay file will be saved into `./results/academy_3_vs_1_with_keeper/replay/`.
+Then the replay file will be saved into `./results/{scenario_name}/replay/`.
 
 * Hyper-parameters in the evaluation script:
     * --replay_save_dir : the replay file will be saved in this directory
@@ -54,7 +54,7 @@ cd scripts/football
 python3 replay2video.py --replay_file ../../results/academy_3_vs_1_with_keeper/replay/your_path.dump
 ```
 
-The video file will finally be saved to `./results/academy_3_vs_1_with_keeper/video/`
+The video file will finally be saved to `./results/{scenario_name}/video/`
 
 ### 5.Cite
 
