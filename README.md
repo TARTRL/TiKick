@@ -24,7 +24,7 @@ pip install .
 (a) First, you should download the trained model from Baidu Yun or Google Drive:
 
 * pre-trained models can be found at:
-    * Baidu Yun: [Click to download]()  Password：vz3a
+    * Baidu Yun: [Click to download](https://pan.baidu.com/s/11bKsKxs_spXzlpRGCUNlOA)  Password：vz3a
     * Google Drive: [Click to download](https://drive.google.com/drive/folders/1pUW_7db9Of9zCDZZWoImVgg0_lX5xCt1?usp=sharing)
 
 (b) Then, you should put the `actor.pt` under `./models/{scenario_name}/`.
