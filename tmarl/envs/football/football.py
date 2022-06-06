@@ -28,7 +28,7 @@ class RllibGFootball(MultiAgentEnv):
             dump_frequency=1 if need_render else 0,
             number_of_left_players_agent_controls=self.num_agents,
             number_of_right_players_agent_controls=0,
-            other_config_options={'action_set':'full'})
+            other_config_options={'action_set': 'full'})
         # state
         self.last_loffside = np.zeros(11)
         self.last_roffside = np.zeros(11)
@@ -54,7 +54,7 @@ class RllibGFootball(MultiAgentEnv):
             high=obs_space_high,
             dtype=obs_space_type) for _ in range(self.num_agents)]
             
-    def reset(self):
+    def reset(self, *, cat_obs: bool = False):
         
         # available actions
         avail_actions = np.ones([self.num_agents, self.action_size])
@@ -67,12 +67,15 @@ class RllibGFootball(MultiAgentEnv):
         raw_obs = self._notFullGame(raw_obs)
         obs = self.raw2vec(raw_obs)
         share_obs = obs.copy()
+        if cat_obs:
+            return np.concatenate([obs, share_obs], axis=1)[:, np.newaxis], avail_actions
+        else:
+            return obs, share_obs, avail_actions
 
-        return obs, share_obs, avail_actions
-
-    def step(self, actions):
+    def step(self, actions, *, argmax: bool = True, cat_obs: bool = False):
         # step
-        actions = np.argmax(actions, axis=-1)
+        if argmax:
+            actions = np.argmax(actions, axis=-1)
         raw_o, r, d, info = self.env.step(actions.astype('int32'))
         raw_o = self._notFullGame(raw_o)
         obs = self.raw2vec(raw_o)
@@ -90,8 +93,10 @@ class RllibGFootball(MultiAgentEnv):
             reward = -0.01 if d and reward < 1 and not self.isEval else reward
             rewards.append(reward)
         rewards = np.expand_dims(np.array(rewards), axis=1)
-        
-        return obs, share_obs, rewards, dones, infos, avail_actions
+        if cat_obs:
+            return np.concatenate([obs, share_obs], axis=1)[:, np.newaxis], rewards, dones, infos, avail_actions
+        else:
+            return obs, share_obs, rewards, dones, infos, avail_actions
 
     def seed(self, seed=None):
         if seed is None:
