@@ -180,8 +180,9 @@ def get_config():
     parser.add_argument("--replay_save_dir", type=str, default=None,
                         help="replay file save dir")
 
-    # replay buffer parameters
 
-
+    # imitation parameters
+    parser.add_argument("--output_logit", type=bool, default=False, help='whether to output logit for RNN imitation')
+    parser.add_argument("--epochs", type=int, default=100)
 
     return parser

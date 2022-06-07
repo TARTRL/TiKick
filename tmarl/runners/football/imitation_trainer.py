@@ -29,6 +29,9 @@ from tmarl.runners.base_evaluator import Evaluator
 from tmarl.envs.football.football import RllibGFootball
 from tmarl.envs.env_wrappers import ShareSubprocVecEnv, ShareDummyVecEnv
 from tmarl.networks.policy_network import PolicyNetwork
+import wandb
+
+wandb.init()
 
 def _t2n(x):
     return x.detach().cpu().numpy()
@@ -92,7 +95,7 @@ class ImitationTrainer(Evaluator):
     def gen_buffer(self, num_episodes, period_len):
         obs_buffer = []
         action_buffer = []
-        for episode in range(num_episodes):
+        for episode in tqdm(range(num_episodes)):
             eval_episode_rewards = []
             eval_obs, eval_share_obs, eval_available_actions = self.eval_envs.reset()
             agent_num = eval_obs.shape[1]
@@ -172,7 +175,7 @@ class ImitationTrainer(Evaluator):
             eval_env_infos['eval_average_ally_score'] = ally_goal
             eval_env_infos['eval_average_enemy_score'] = enemy_goal
             eval_env_infos['eval_average_net_score'] = net_goal
-            print("\tSuccess Rate: " + str(np.mean(winning_rate>0)) )
+            # print("\tSuccess Rate: " + str(np.mean(winning_rate>0)) )
         return obs_buffer, action_buffer, eval_available_actions
 
     def imitate(self):
@@ -242,8 +245,9 @@ class ImitationTrainer(Evaluator):
                 optimizer.step()
                 losses.append(loss.detach().cpu().numpy())
                 pbar.set_description("Loss: %f" % (np.array(losses).mean()))
-            
-            torch.save(self.student.state_dict(), 'imitated_'+self.all_args.scenario_name +'.pt')
+                wandb.log({'Loss': np.array(losses).mean()})
+            os.makedirs('imitated_'+self.all_args.scenario_name, exist_ok=True)
+            torch.save(self.student.state_dict(), 'imitated_'+self.all_args.scenario_name +'/actor.pt')
                 # print(action_logits.shape, label.shape)
 
 

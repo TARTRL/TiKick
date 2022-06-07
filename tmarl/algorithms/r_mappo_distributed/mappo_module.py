@@ -14,12 +14,16 @@ class MAPPOModule:
         self.obs_space = obs_space
         self.share_obs_space = share_obs_space
         self.act_space = act_space
+        self.output_logit = args.output_logit
 
-        self.actor = PolicyNetwork(args, self.obs_space, self.act_space, self.device)
+        self.actor = PolicyNetwork(args, self.obs_space, self.act_space, self.device, output_logit=self.output_logit)
 
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=self.lr, eps=self.opti_eps, weight_decay=self.weight_decay)
 
     def get_actions(self, share_obs, obs, rnn_states_actor, rnn_states_critic, masks, available_actions=None, deterministic=False):
-        actions, action_log_probs, rnn_states_actor = self.actor(obs, rnn_states_actor, masks, available_actions, deterministic)
-
-        return None, actions, action_log_probs, rnn_states_actor, None
+        if not self.output_logit:
+            actions, action_log_probs, rnn_states_actor = self.actor(obs, rnn_states_actor, masks, available_actions, deterministic)
+            return None, actions, action_log_probs, rnn_states_actor, None
+        # else:
+        #     action_logits, rnn_states_actor = self.actor(obs, rnn_states_actor, masks, available_actions, deterministic)
+        #     return None, actions_logits, rnn_states_actor, None

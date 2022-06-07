@@ -12,7 +12,7 @@ from tmarl.utils.util import get_shape_from_obs_space
 # networks are defined here
 
 class PolicyNetwork(nn.Module):
-    def __init__(self, args, obs_space, action_space, device=torch.device("cpu")):
+    def __init__(self, args, obs_space, action_space, device=torch.device("cpu"),output_logit=False):
         super(PolicyNetwork, self).__init__()
         self.hidden_size = args.hidden_size
 
@@ -54,10 +54,15 @@ class PolicyNetwork(nn.Module):
                 self.v_out = init_(PopArt(input_size, 1, device=device))
             else:
                 self.v_out = init_(nn.Linear(input_size, 1))
+        init_method = [nn.init.xavier_uniform_, nn.init.orthogonal_][self._use_orthogonal]
+        def init_(m): 
+            return init(m, init_method, lambda x: nn.init.constant_(x, 0), self._gain)
+        if output_logit:
+            self.linear = init_(nn.Linear(input_size, action_space.n))
 
         self.to(device)
 
-    def forward(self, obs, rnn_states, masks, available_actions=None, deterministic=False):
+    def forward(self, obs, rnn_states, masks, available_actions=None, deterministic=False, output_logit=False):
         if self._mixed_obs:
             for key in obs.keys():
                 obs[key] = check(obs[key]).to(**self.tpdv)
@@ -74,8 +79,12 @@ class PolicyNetwork(nn.Module):
         if self._use_influence_policy:
             mlp_obs = self.mlp(obs)
             actor_features = torch.cat([actor_features, mlp_obs], dim=1)
+
+        if output_logit:
+            action_logits = self.linear(actor_features)
+            return action_logits, rnn_states
+ 
         actions, action_log_probs = self.act(actor_features, available_actions, deterministic)
-        
         return actions, action_log_probs, rnn_states
 
     def evaluate_actions(self, obs, rnn_states, action, masks, available_actions=None, active_masks=None):
