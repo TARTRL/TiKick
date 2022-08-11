@@ -30,7 +30,7 @@ from absl import flags
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string('replay_file', None, 'replay file path')
-flags.DEFINE_string('video_save_dir', '../../results/academy_3_vs_1_with_keeper/video', 'video save dir')
+flags.DEFINE_string('video_save_dir', '../../results/videos', 'video save dir')
 flags.DEFINE_integer('fps', 10, 'How many frames per second to render')
 flags.mark_flag_as_required('replay_file')
 

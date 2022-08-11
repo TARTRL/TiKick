@@ -1,4 +1,6 @@
+from tqdm import tqdm
 import numpy as np
+
 from tmarl.drivers.shared_distributed.base_driver import Driver
 
 
@@ -33,7 +35,7 @@ class FootballDriver(Driver):
 
         finished = None
         
-        for eval_step in range(3001):
+        for eval_step in tqdm(range(3001)):
             self.trainer.prep_rollout()
             _, eval_action, eval_action_log_prob, eval_rnn_states, _ = \
                 self.trainer.algo_module.get_actions(np.concatenate(eval_share_obs),

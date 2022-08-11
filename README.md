@@ -13,6 +13,9 @@ Learning-based agent for Google Research Football
 Code accompanying the paper 
 "TiKick: Towards Playing Multi-agent Football Full Games from Single-agent Demonstrations". [[arxiv](https://arxiv.org/abs/2110.04507)][[videos](https://sites.google.com/view/tikick)]. The implementation in this repositorory is heavily based on https://github.com/marlbenchmark/on-policy.
 
+Update:
+- [22.8.11]: 11 vs 11 model is released! Model can be found on [Google Drive](https://drive.google.com/drive/folders/1pUW_7db9Of9zCDZZWoImVgg0_lX5xCt1?usp=sharing).
+
 ### 2.Installation
 ```
 pip install -r requirements.txt

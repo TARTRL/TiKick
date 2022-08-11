@@ -15,7 +15,8 @@ class RllibGFootball(MultiAgentEnv):
         self.isEval = isEval
         self.rank = rank
         # create env
-        need_render = (rank == 0) and isEval
+        # need_render = (rank == 0) and isEval
+        need_render = (rank == 0)
         #    and (not isEval or self.use_behavior_cloning)
         self.env = football_env.create_environment(
             env_name=all_args.scenario_name, stacked=False,
@@ -34,7 +35,12 @@ class RllibGFootball(MultiAgentEnv):
         self.last_roffside = np.zeros(11)
         # dimension
         self.action_size = 33
-        self.avail_size = 19
+
+        if all_args.scenario_name == "11_vs_11_kaggle":
+            self.avail_size = 20
+        else:
+            self.avail_size = 19
+
         if all_args.representation == 'raw':
             obs_space_dim = 268
             obs_space_low = np.zeros(obs_space_dim) - 1e6
@@ -278,138 +284,3 @@ class RllibGFootball(MultiAgentEnv):
                 obs['right_team'] = np.concatenate([obs['right_team'], np.array([[-1,0]])], axis=0)
                 obs['right_team_direction'] = np.concatenate([obs['right_team_direction'], np.zeros([1,2])], axis=0)
         return raw_obs
-
-    def _get_one_action(self, raw_obs, id):
-        """Returns action to perform for the current observations."""
-        active = raw_obs['left_team'][id]
-        # Corner etc. - just pass the ball
-        if raw_obs['game_mode'] != 0:
-            return 9 #football_action_set.action_long_pass
-
-        if raw_obs['ball_owned_team'] == 1:
-            if self._last_actions[id] == 21: #football_action_set.action_pressure
-                return 13 #football_action_set.action_sprint
-            self._pressure_enabled[id] = True
-            return 21 #football_action_set.action_pressure
-
-        if self._pressure_enabled[id]:
-            self._pressure_enabled[id] = False
-            return 30 #football_action_set.action_release_pressure
-        target_x = 0.85
-
-        if (np.linalg.norm(raw_obs['ball'][:2] - [target_x, 0]) < self._shoot_distance):
-            return 12 #football_action_set.action_shot
-
-        move_target = [target_x, 0]
-        # Compute run direction.
-        move_action = self._direction_action(move_target - active)
-
-        closest_front_opponent = self._closest_front_opponent(raw_obs, active, move_target)
-        if closest_front_opponent is not None:
-            dist_front_opp = self._object_distance(active, closest_front_opponent)
-        else:
-            dist_front_opp = 2.0
-
-        # Maybe avoid opponent on your way?
-        if dist_front_opp < 0.08:
-            best_pass_target = self._best_pass_target(raw_obs, active)
-            if np.array_equal(best_pass_target, active):
-                move_action = self._avoid_opponent(active, closest_front_opponent, move_target)
-            else:
-                delta = best_pass_target - active
-                direction_action = self._direction_action(delta)
-                if self._last_actions[id] == direction_action:
-                    return 11 #football_action_set.action_short_pass
-                else:
-                    return direction_action
-        return move_action
-
-    def _direction_action(self, delta):
-        """For required movement direction vector returns appropriate action."""
-        all_directions = [
-            3, # football_action_set.action_top,
-            2, #football_action_set.action_top_left,
-            1, #football_action_set.action_left,
-            8, #football_action_set.action_bottom_left,
-            7, #football_action_set.action_bottom,
-            6, #football_action_set.action_bottom_right,
-            5, #football_action_set.action_right,
-            4, #football_action_set.action_top_right
-        ]
-        all_directions_vec = [(0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1),
-                            (1, 0), (1, -1)]
-        all_directions_vec = [
-            np.array(v) / np.linalg.norm(np.array(v)) for v in all_directions_vec
-        ]
-        best_direction = np.argmax([np.dot(delta, v) for v in all_directions_vec])
-        return all_directions[best_direction]
-
-    def _closest_front_opponent(self, raw_obs, o, target):
-        """For an object and its movement direction returns the closest opponent."""
-        delta = target - o
-        min_d = None
-        closest = None
-        for p in raw_obs['right_team']:
-            delta_opp = p - o
-            if np.dot(delta, delta_opp) <= 0:
-                continue
-            d = self._object_distance(o, p)
-            if min_d is None or d < min_d:
-                min_d = d
-                closest = p
-
-        # May return None!
-        return closest
-
-    def _object_distance(self, object1, object2):
-        """Computes distance between two objects."""
-        return np.linalg.norm(np.array(object1) - np.array(object2))
-
-    def _best_pass_target(self, raw_obs, active):
-        """Computes best pass a given player can do."""
-        best_score = None
-        best_target = None
-        for player in raw_obs['left_team']:
-            if self._object_distance(player, active) > 0.3:
-                continue
-            score = self._score_pass_target(raw_obs, active, player)
-            if best_score is None or score > best_score:
-                best_score = score
-                best_target = player
-        return best_target
-
-    def _score_pass_target(self, raw_obs, active, player):
-        """Computes score of the pass between players."""
-        opponent = self._closest_opponent_to_object(raw_obs, player)
-        trajectory = player - active
-        dist_closest_traj = None
-        for i in range(10):
-            position = active + (i + 1) / 10.0 * trajectory
-            opp_traj = self._closest_opponent_to_object(raw_obs, position)
-            dist_traj = self._object_distance(position, opp_traj)
-            if dist_closest_traj is None or dist_traj < dist_closest_traj:
-                dist_closest_traj = dist_traj
-        return -dist_closest_traj
-
-    def _closest_opponent_to_object(self, raw_obs, o):
-        """For a given object returns the closest opponent."""
-        min_d = None
-        closest = None
-        for p in raw_obs['right_team']:
-            d = self._object_distance(o, p)
-            if min_d is None or d < min_d:
-                min_d = d
-                closest = p
-        assert closest is not None
-        return closest
-
-    def _avoid_opponent(self, active, opponent, target):
-        """Computes movement action to avoid a given opponent."""
-        # Choose a perpendicular direction to the opponent, towards the target.
-        delta = opponent - active
-        delta_t = target - active
-        new_delta = [delta[1], -delta[0]]
-        if delta_t[0] * new_delta[0] < 0:
-            new_delta = [-new_delta[0], -new_delta[1]]
-
-        return self._direction_action(new_delta)
