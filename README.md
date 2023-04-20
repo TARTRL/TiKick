@@ -6,6 +6,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+[Update]: check out our newest GRF agent here: [TiZero: Mastering Multi-Agent Football with Curriculum Learning and Self-Play](https://github.com/OpenRL-Lab/TiZero)
+
 ### 1.Introduction
 
 Learning-based agent for Google Research Football
